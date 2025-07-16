@@ -17,7 +17,7 @@ export default function Home() {
 
             <TouchableOpacity
                 style={styles.button}
-                onPress={() => navigation.navigate('VerReceita')}
+                onPress={() => navigation.navigate('VerReceitaTabs')}
                 activeOpacity={0.8}
             >
                 <Text style={styles.buttonText}>Ver minhas receitas</Text>
