@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Alert, KeyboardAvoidingView, TouchableWithoutFeedback, Platform, Keyboard } from 'react-native';
 import { Receita, addReceita, getReceitas } from '../storage/receitasStorage';
+import { useNavigation } from '@react-navigation/native';
+import {Ionicons} from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+
 
 const categorias = ['Doce', 'Salgado', 'Rápido', 'Fit', 'Outros'] as const;
 
 const gerarId = () => Math.random().toString(36).substring(2, 10);
 
 export default function CriarReceita() {
+  const navigation = useNavigation();
   const [titulo, setTitulo] = useState('');
   const [tempoPreparo, setTempoPreparo] = useState('');
   const [porcoes, setPorcoes] = useState('');
@@ -63,10 +68,9 @@ export default function CriarReceita() {
 
     try {
       await addReceita(novaReceita);
-      const receitasAtualizadas = await getReceitas();
-console.log('Receitas no AsyncStorage:', receitasAtualizadas);
       Alert.alert('Sucesso', 'Receita salva!');
-      // Resetar formulário
+      navigation.navigate('VerReceitaTabs');
+      
       setTitulo('');
       setTempoPreparo('');
       setPorcoes('');
@@ -81,11 +85,21 @@ console.log('Receitas no AsyncStorage:', receitasAtualizadas);
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.label}>📄 Nome da Receita:</Text>
+    <KeyboardAvoidingView style={{flex: 1}} behavior={Platform.OS === 'ios' ? 'padding': 'height'}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView contentContainerStyle={styles.container}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+        <Ionicons name="document-outline" size={24} color="black" />
+        <Text style={[styles.label, { marginLeft: 5, marginTop: 5 }]}>Nome da Receita:</Text>
+      </View>
+
       <TextInput style={styles.input} value={titulo} onChangeText={setTitulo} placeholder="Nome" />
 
-      <Text style={styles.label}>🕒 Tempo de Preparo (min):</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+        <Ionicons name="time-outline" size={24} color="black" />
+        <Text style={[styles.label, { marginLeft: 5, marginTop: 5 }]}>
+         Tempo de Preparo (min):</Text>
+      </View>
       <TextInput
         style={styles.input}
         value={tempoPreparo}
@@ -94,7 +108,11 @@ console.log('Receitas no AsyncStorage:', receitasAtualizadas);
         placeholder="Ex: 30"
       />
 
-      <Text style={styles.label}>👥 Porções:</Text>
+     <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+      <Ionicons name="people-outline" size={24} color="black" />
+       <Text style={[styles.label, { marginLeft: 5, marginTop: 5 }]}>
+         Porções:</Text>
+     </View>
       <TextInput
         style={styles.input}
         value={porcoes}
@@ -103,7 +121,11 @@ console.log('Receitas no AsyncStorage:', receitasAtualizadas);
         placeholder="Ex: 4"
       />
 
-      <Text style={styles.label}>🍽️ Categoria:</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+        <Ionicons name="fast-food-outline" size={24} color="black" />
+        <Text style={[styles.label, { marginLeft: 5, marginTop: 5 }]}>
+         Categoria:</Text>
+      </View>
       <View style={styles.categoriasContainer}>
         {categorias.map(cat => (
           <TouchableOpacity
@@ -119,7 +141,11 @@ console.log('Receitas no AsyncStorage:', receitasAtualizadas);
         ))}
       </View>
 
-      <Text style={styles.label}>🥣 Ingredientes:</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+        <MaterialCommunityIcons name="bowl-mix" size={24} color="black" />
+        <Text style={[styles.label, { marginLeft: 5, marginTop: 5 }]}>
+         Ingredientes:</Text>
+      </View>
       {ingredientes.map((ing, i) => (
         <TextInput
           key={i}
@@ -130,10 +156,16 @@ console.log('Receitas no AsyncStorage:', receitasAtualizadas);
         />
       ))}
       <TouchableOpacity style={styles.btnAdd} onPress={handleAddIngrediente}>
-        <Text style={styles.btnAddText}>➕ Adicionar ingrediente</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+          <Ionicons name='add-circle' size={24} color="black" />
+          <Text style={[styles.btnAddText, {marginLeft: 5, marginTop: 5 }]}>
+           Adicionar ingrediente</Text>
+        </View>
       </TouchableOpacity>
 
-      <Text style={styles.label}>📋 Modo de Preparo:</Text>
+      <Text style={styles.label}>
+        <MaterialCommunityIcons name="chef-hat" size={24} color="black" />
+         Modo de Preparo:</Text>
       {modoPreparo.map((modo, i) => (
         <TextInput
           key={i}
@@ -144,20 +176,64 @@ console.log('Receitas no AsyncStorage:', receitasAtualizadas);
         />
       ))}
       <TouchableOpacity style={styles.btnAdd} onPress={handleAddModoPreparo}>
-        <Text style={styles.btnAddText}>➕ Adicionar passo</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+          <Ionicons name='add-circle' size={24} color="black" />
+          <Text style={[styles.btnAddText, {marginLeft: 5, marginTop: 5 }]}>
+           Adicionar passo</Text>
+        </View>
       </TouchableOpacity>
+
+        <TouchableOpacity
+  style={[
+    styles.btnSalvar,
+    {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: favorito ? '#e91e63' : '#EEE8AA',
+    },
+  ]}
+  onPress={() => setFavorito(!favorito)}
+>
+  <Ionicons
+    name={favorito ? 'heart' : 'heart-outline'}
+    size={22}
+    color={favorito ? '#fff' : '#000'}
+    style={{ marginRight: 8 }}
+  />
+  <Text style={[
+    styles.btnSalvarText,
+    { color: favorito ? '#fff' : '#000' }
+  ]}>
+    {favorito ? 'Remover dos Favoritos' : 'Marcar como Favorito'}
+  </Text>
+</TouchableOpacity>
 
       <TouchableOpacity
-        style={[styles.btnSalvar, favorito && { backgroundColor: '#e91e63' }]}
-        onPress={() => setFavorito(!favorito)}
-      >
-        <Text style={styles.btnSalvarText}>{favorito ? '❤️ Favorito' : '♡ Marcar como favorito'}</Text>
-      </TouchableOpacity>
+  style={[
+    styles.btnSalvar,
+    {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+  ]}
+  onPress={handleSalvar}
+>
+  <Ionicons
+    name="save-outline"
+    size={22}
+    color="#000"
+    style={{ marginRight: 8 }}
+  />
+  <Text style={[styles.btnSalvarText, { color: '#000' }]}>
+    Salvar Receita
+  </Text>
+</TouchableOpacity>
 
-      <TouchableOpacity style={styles.btnSalvar} onPress={handleSalvar}>
-        <Text style={styles.btnSalvarText}>🔘 Salvar Receita</Text>
-      </TouchableOpacity>
     </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -165,40 +241,47 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
     paddingBottom: 50,
+    backgroundColor: '#FFFACD',
   },
   label: {
     fontWeight: '600',
     marginBottom: 6,
     fontSize: 16,
+    justifyContent:'center',
+    alignItems: 'center',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#CCC',
+    borderColor: '#E3E0E0',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 6,
     marginBottom: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.6)'
   },
   categoriasContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     marginBottom: 12,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   categoriaBtn: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 25,
     paddingVertical: 8,
-    borderRadius: 20,
+    borderRadius: 5,
     borderWidth: 1,
     borderColor: '#888',
     marginRight: 8,
     marginBottom: 8,
   },
   categoriaSelected: {
-    backgroundColor: '#4caf50',
-    borderColor: '#4caf50',
+    backgroundColor: '#BDB76B',
+    borderColor: '#bbb',
   },
   categoriaText: {
     color: '#555',
+    fontWeight: 'bold'
   },
   categoriaTextSelected: {
     color: '#fff',
@@ -208,18 +291,20 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   btnAddText: {
-    color: '#007AFF',
+    color: '#000',
     fontWeight: '600',
   },
   btnSalvar: {
-    backgroundColor: '#007AFF',
-    paddingVertical: 14,
+    backgroundColor: '#EEE8AA',
+    borderColor: '#bbb',
+    borderWidth: 1,
+    paddingVertical: 10,
     borderRadius: 25,
     alignItems: 'center',
     marginBottom: 12,
   },
   btnSalvarText: {
-    color: '#fff',
+    color: '#000',
     fontWeight: '700',
     fontSize: 16,
   },
