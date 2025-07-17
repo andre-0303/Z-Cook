@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         borderWidth: 1,
         borderColor: '#000',
-        elevation: 5,
+        elevation: 3,
         width: '80%',
         alignItems: 'center',
     },
