@@ -58,6 +58,10 @@ export default function VerReceitas() {
     setReceitas(novaLista);
   }
 
+  function filtrarReceita() {
+    return receitas.filter(filtrarPorCategoria).filter(receita => receita.titulo.toLowerCase().includes(busca.toLowerCase()))
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.topBar}>
@@ -68,7 +72,6 @@ export default function VerReceitas() {
     onChangeText={setBusca}
   />
 </View>
-
 
       <View style={styles.categorias}>
         {categorias.map(cat => (
@@ -89,7 +92,7 @@ export default function VerReceitas() {
       </View>
 
       <ScrollView contentContainerStyle={styles.lista}>
-        {receitas.filter(filtrarPorCategoria).map(renderCard)}
+        {filtrarReceita().map(renderCard)}
       </ScrollView>
 
     </View>
