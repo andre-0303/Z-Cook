@@ -22,6 +22,12 @@ export default function VerReceitaTabs() {
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: '#000',
+        tabBarStyle: {
+          backgroundColor: '#EEE8AA',
+          borderTopWidth: 0,
+          elevation: 10,
+          height: 95
+        },
         tabBarInactiveTintColor: 'gray',
         headerShown: false
       })}
