@@ -69,7 +69,7 @@ src/
 ## 📸 UI/UX Design
 
 Confira o design no Figma:  
-👉 [Telas]([https://www.figma.com/file/seu-link-aqui](https://www.figma.com/design/ZVUw2lOc2AlVOPiyF2Oicb/ZCook?node-id=10-8&t=4sii4XZrbVvGU3zd-1))
+👉 [Telas](https://www.figma.com/design/ZVUw2lOc2AlVOPiyF2Oicb/ZCook?node-id=10-8&t=4sii4XZrbVvGU3zd-1)
 
 ---
 
