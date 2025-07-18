@@ -8,11 +8,15 @@ import CriarReceita from "./src/screens/CriarReceita";
 import { useEffect } from "react";
 import { testarAsyncStorage } from "./src/storage/test";
 import DetalhesReceita from "./src/screens/DetalhesReceita";
+import EditarReceita from "./src/screens/EditarReceita";
+import { Receita } from "./src/storage/receitasStorage";
 
 export type RootStackParamList = {
   Home: undefined;
   VerReceitaTabs: undefined; 
   CriarReceita: undefined;
+  EditarReceita: {id: string};
+  DetalhesReceita: {receita: Receita};
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -26,13 +30,18 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
-        <Stack.Screen name="VerReceitaTabs" component={VerReceitaTabs} options={{title: ''}} />
+        <Stack.Screen name="VerReceitaTabs" component={VerReceitaTabs} options={{title: '', headerStyle: {backgroundColor: '#f8f4c8ff'}}} />
         <Stack.Screen name="CriarReceita" component={CriarReceita} options={{ title: '' }} />
         <Stack.Screen
     name="DetalhesReceita"
     component={DetalhesReceita}
-    options={{ title: 'Detalhes da Receita' }}
+    options={{title: '', headerStyle: {backgroundColor: '#f8f4c8ff'}}}
   />
+  <Stack.Screen
+  name="EditarReceita"
+  component={EditarReceita}
+  options={{title: 'Editar Receita', headerStyle: {backgroundColor: '#f8f4c8ff'}}}
+/>
 
       </Stack.Navigator>
     </NavigationContainer>

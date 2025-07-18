@@ -31,7 +31,7 @@ export default function Home() {
                 <Text style={styles.buttonText}>Criar nova receita</Text>
             </TouchableOpacity>
             
-            <Text style={styles.titledown}>Suas receitas em um só lugar.</Text>
+            <Text style={styles.titledown}>Suas receitas em um só lugar</Text>
         </View>
     );
 }
