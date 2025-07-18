@@ -4,16 +4,16 @@ import {
 } from 'react-native';
 import { getReceitas, Receita } from '../storage/receitasStorage';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const categorias = ['Todas', 'Doce', 'Salgado', 'Rápido', 'Fit', 'Outros'] as const;
 
 export default function VerReceitas() {
-  
   const [receitas, setReceitas] = useState<Receita[]>([]);
   const [busca, setBusca] = useState('');
-
   const [categoriaSelecionada, setCategoriaSelecionada] = useState<typeof categorias[number]>('Todas');
-  const isFocused = useIsFocused(); 
+  const isFocused = useIsFocused();
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -30,46 +30,55 @@ export default function VerReceitas() {
     return receita.categoria === categoriaSelecionada;
   }
 
-  function renderCard(receita: Receita) {
-    return (
-      <View key={receita.id} style={styles.card}>
-        <Text style={styles.cardTitulo}>🍽️ {receita.titulo}</Text>
-        <Text>⏱️ {receita.tempo_preparo} min {receita.favorito ? ' | ❤️' : ''}</Text>
-        <View style={styles.cardAcoes}>
-          <TouchableOpacity
-  onPress={() => navigation.navigate('DetalhesReceita', { receita })}
->
-  <Text>📄 Ver detalhes</Text>
-</TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('EditarReceita', { id: receita.id })}>
-            <Text style={styles.link}>✏️ Editar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleExcluir(receita.id)}>
-            <Text style={[styles.link, { color: 'red' }]}>🗑️ Excluir</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
-
   async function handleExcluir(id: string) {
     const novaLista = receitas.filter(r => r.id !== id);
     await AsyncStorage.setItem('@zcook_receitas', JSON.stringify(novaLista));
     setReceitas(novaLista);
   }
 
+  function filtrarReceita() {
+    return receitas
+      .filter(filtrarPorCategoria)
+      .filter(receita => receita.titulo.toLowerCase().includes(busca.toLowerCase()));
+  }
+
+  function renderCard(receita: Receita) {
+    return (
+      <View key={receita.id} style={styles.card}>
+        <Text style={styles.cardTitulo}>
+          <Ionicons name="restaurant" size={20} color="#333" /> {receita.titulo}
+        </Text>
+        <Text style={styles.cardInfo}>
+          <Ionicons name="time-outline" size={16} color="#555" /> {receita.tempo_preparo} min
+          {receita.favorito && <Ionicons name="heart" size={16} color="#e91e63" style={{ marginLeft: 10 }} />}
+        </Text>
+        <View style={styles.cardAcoes}>
+          <TouchableOpacity onPress={() => navigation.navigate('DetalhesReceita', { receita })}>
+            <Text><Ionicons name="document-outline" size={16} color="#000" /> Ver detalhes</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('EditarReceita', { id: receita.id })}>
+            <Text style={styles.link}><Ionicons name="create-outline" size={16} color="#007AFF" /> Editar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => handleExcluir(receita.id)}>
+            <Text style={[styles.link, { color: 'red' }]}><Ionicons name="trash-outline" size={16} color="red" /> Excluir</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <View style={styles.topBar}>
-  <TextInput
-    style={styles.inputBusca}
-    placeholder="🔍 Buscar receita..."
-    value={busca}
-    onChangeText={setBusca}
-  />
-</View>
-
-
+      <View style={styles.buscaContainer}>
+        <Ionicons name="search-outline" size={20} color="#555" style={styles.iconBusca} />
+        <TextInput
+          style={styles.inputBusca}
+          placeholder="Buscar receita..."
+          value={busca}
+          onChangeText={setBusca}
+          placeholderTextColor="#888"
+        />
+      </View>
       <View style={styles.categorias}>
         {categorias.map(cat => (
           <TouchableOpacity
@@ -78,20 +87,25 @@ export default function VerReceitas() {
             onPress={() => setCategoriaSelecionada(cat)}
           >
             <Text style={cat === categoriaSelecionada ? styles.catTxtSel : styles.catTxt}>
-              {cat === 'Doce' ? '🍬 Doces' :
-               cat === 'Salgado' ? '🍝 Salgadas' :
-               cat === 'Rápido' ? '⚡ Rápidas' :
-               cat === 'Fit' ? '🥗 Fit' :
-               cat === 'Outros' ? '🍽️ Outros' : '🍽️ Todas'}
+              {cat === 'Doce' && <Ionicons name="ice-cream" size={16} color="#fff" />}
+              {cat === 'Salgado' && <Ionicons name="pizza" size={16} color="#fff" />}
+              {cat === 'Rápido' && <Ionicons name="flash-outline" size={16} color="#fff" />}
+              {cat === 'Fit' && <Ionicons name="nutrition" size={16} color="#fff" />}
+              {cat === 'Outros' && <Ionicons name="restaurant" size={16} color="#fff" />}
+              {cat === 'Todas' && <Ionicons name="grid-outline" size={16} color="#fff" />}
+              {' '}
+              {cat}
             </Text>
           </TouchableOpacity>
         ))}
       </View>
+      <View>
+        <Text style={{marginBottom: 15, fontSize: 19, fontWeight: '800', marginLeft: 5}}>Receitas:</Text>
+      </View>
 
       <ScrollView contentContainerStyle={styles.lista}>
-        {receitas.filter(filtrarPorCategoria).map(renderCard)}
+        {filtrarReceita().map(renderCard)}
       </ScrollView>
-
     </View>
   );
 }
@@ -101,48 +115,60 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     paddingBottom: 80,
+    backgroundColor: '#FFFACD'
   },
   topBar: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 16,
+    gap: 8,
   },
-  busca: {
-    fontSize: 16,
-  },
-  filtro: {
-    fontSize: 16,
+   buscaContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#CCC',
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 2,
+    marginBottom: 16,
+    gap: 2
   },
   categorias: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     marginBottom: 16,
+    gap: 6,
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   categoriaBtn: {
     paddingVertical: 6,
-    paddingHorizontal: 10,
+    paddingHorizontal: 20,
     borderWidth: 1,
     borderRadius: 20,
-    marginRight: 8,
-    marginBottom: 8,
     borderColor: '#888',
+    flexDirection: 'row',
+    gap: 4,
+    backgroundColor: '#BDB76B',
   },
   categoriaSelecionada: {
-    backgroundColor: '#007AFF',
-    borderColor: '#007AFF',
+    backgroundColor: '#EEE8AA',
+    borderColor: '#bbb',
   },
   catTxt: {
     color: '#555',
   },
   catTxtSel: {
-    color: '#fff',
+    color: '#605b5bff',
     fontWeight: 'bold',
   },
   lista: {
     gap: 12,
   },
   card: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#F7F7F7',
     padding: 16,
     borderRadius: 12,
     elevation: 2,
@@ -152,38 +178,20 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 6,
   },
+  cardInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent:'center',
+    gap: 4,
+    color: '#555',
+  },
   cardAcoes: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginTop: 8,
   },
   link: {
-    color: '#007AFF',
+    color: '#a85919ff',
     fontWeight: '600',
   },
-  btnFlutuante: {
-    position: 'absolute',
-    bottom: 24,
-    right: 24,
-    backgroundColor: '#007AFF',
-    paddingVertical: 14,
-    paddingHorizontal: 18,
-    borderRadius: 30,
-    elevation: 5,
-  },
-  btnTxt: {
-    color: '#fff',
-    fontWeight: '700',
-  },
-  inputBusca: {
-  borderWidth: 1,
-  borderColor: '#CCC',
-  borderRadius: 20,
-  paddingHorizontal: 16,
-  paddingVertical: 8,
-  fontSize: 16,
-  backgroundColor: '#fff',
-  flex: 1,
-},
-
 });
